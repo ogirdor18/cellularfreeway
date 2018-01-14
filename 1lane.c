@@ -2,13 +2,15 @@
 #include<stdlib.h>
 #include<math.h>
 
-void main(void){
+void main(void)
+{
 
 	FILE*arq;
 	arq = fopen("dados.dat","w+");
 	
 	// rua de 0 a comprimento_rua - 1 
-	int comprimento_rua = 100, num_carros = 3, veloc_max = 5, tempo_max = 20, probab = 0.25;
+	int comprimento_rua = 50, num_carros = 10, veloc_max = 5, tempo_max = 20;
+	double probab = 0.3;
 	
 	//velocidade: numero de posições que o carro andará num passo
 	int pos[num_carros], veloc[num_carros];
@@ -22,19 +24,22 @@ void main(void){
 	}
 	
 	//passo
-	int t, dist;
-	for(t = 0; t < tmax; t++)
+	int t, dist, pos_min = 0;
+	for(t = 0; t < tempo_max; t++)
 	{
+	
 		for(i = 0; i < num_carros; i++)
 		{	
-			//condições de contorno periódicas
-			if(pos[i+1] < pos[i])
+			if(pos[i] < pos[pos_min])
 			{
-				dist = comprimento_rua - (pos[i] - pos[i+1]);
+				pos_min = i;
 			}
-			else
+		
+			dist = pos[(i+1)%num_carros] - pos[i];
+			
+			if(dist < 0)
 			{
-				dist = pos[i+1] - pos[i];
+				dist += comprimento_rua;
 			}
 			
 			if((veloc[i] < veloc_max) && (dist > veloc[i] + 1))
@@ -51,20 +56,28 @@ void main(void){
 			}
 		}
 		
-		for(i = 0; i < num_carros; i++)
+		printf("t = %d   ", t);
+		for(i = 0; i < comprimento_rua; i++)
 		{
-			pos[i] += veloc[i];
-			if(pos[i] >= comprimento_rua)
+			if(pos[pos_min] == i)
 			{
-				pos[i] -= comprimento_rua;
+				printf("%d", veloc[pos_min]);
+				pos_min = (pos_min + 1)%num_carros;
+			}
+			else
+			{
+				printf(".");
 			}
 		}
+		printf("\n");
+		
+		
+		for(i = 0; i < num_carros; i++)
+		{
+			pos[i] = (pos[i] + veloc[i])%comprimento_rua;
+		}
+		
 	}
-	
 	
 	fclose(arq);
 }
-
-
-
-
